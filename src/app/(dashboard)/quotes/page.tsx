@@ -20,6 +20,8 @@ interface Quote {
   id: string;
   status: string;
   createdAt: Date;
+  adminNotes?: string | null;
+  customerNotes?: string | null;
   customer: Customer;
 }
 

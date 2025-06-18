@@ -7,6 +7,8 @@ import { updateQuoteStatus } from "../_actions/updateQuoteStatus";
 interface Quote {
   id: string;
   status: string;
+  adminNotes?: string | null;
+  customerNotes?: string | null;
 }
 
 export default function UpdateQuoteStatus({ quote }: { quote: Quote }) {
@@ -25,10 +27,12 @@ export default function UpdateQuoteStatus({ quote }: { quote: Quote }) {
         <Select.Trigger />
         <Select.Content>
           <Select.Item value="PENDING">Pending</Select.Item>
-          <Select.Item value="SENT">Sent</Select.Item>
+          <Select.Item value="REVIEWING">Reviewing</Select.Item>
+          <Select.Item value="QUOTED">Quoted</Select.Item>
           <Select.Item value="ACCEPTED">Accepted</Select.Item>
           <Select.Item value="DECLINED">Declined</Select.Item>
           <Select.Item value="EXPIRED">Expired</Select.Item>
+          <Select.Item value="CONVERTED">Converted</Select.Item>
         </Select.Content>
       </Select.Root>
       <Button onClick={handleUpdateStatus} disabled={loading}>

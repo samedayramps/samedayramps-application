@@ -43,7 +43,10 @@ export default async function QuoteDetailPage({
               <Strong>Status:</Strong> {quote.status}
             </Text>
             <Text>
-              <Strong>Notes:</Strong> {quote.notes || "N/A"}
+              <Strong>Admin Notes:</Strong> {quote.adminNotes || "N/A"}
+            </Text>
+            <Text>
+              <Strong>Customer Notes:</Strong> {quote.customerNotes || "N/A"}
             </Text>
           </Flex>
         </Inset>

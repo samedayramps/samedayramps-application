@@ -3,9 +3,6 @@ import Credentials from 'next-auth/providers/credentials';
 import { db } from './db';
 import bcrypt from 'bcryptjs';
 
-console.log('NEXTAUTH_URL:', process.env.NEXTAUTH_URL);
-console.log('NODE_ENV:', process.env.NODE_ENV);
-
 export const {
   handlers,
   auth,
