@@ -4,7 +4,12 @@ import { useState } from "react";
 import { Button, Select } from "@radix-ui/themes";
 import { updateQuoteStatus } from "../_actions/updateQuoteStatus";
 
-export default function UpdateQuoteStatus({ quote }: { quote: any }) {
+interface Quote {
+  id: string;
+  status: string;
+}
+
+export default function UpdateQuoteStatus({ quote }: { quote: Quote }) {
   const [status, setStatus] = useState(quote.status);
   const [loading, setLoading] = useState(false);
 

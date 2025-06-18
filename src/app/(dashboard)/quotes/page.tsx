@@ -10,14 +10,21 @@ import {
 import { Badge } from "../../../components/ui/Badge";
 import { Button, Heading } from "@radix-ui/themes";
 import Link from "next/link";
-import { Quote, Customer } from "@prisma/client";
 
-type QuoteWithCustomer = Quote & {
+interface Customer {
+  firstName: string;
+  lastName: string;
+}
+
+interface Quote {
+  id: string;
+  status: string;
+  createdAt: Date;
   customer: Customer;
-};
+}
 
 export default async function QuotesPage() {
-  const quotes: QuoteWithCustomer[] = await db.quote.findMany({
+  const quotes: Quote[] = await db.quote.findMany({
     include: {
       customer: true,
     },

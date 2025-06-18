@@ -7,7 +7,7 @@ export async function updateQuoteStatus(id: string, status: string) {
   try {
     const updatedQuote = await db.quote.update({
       where: { id },
-      data: { status: status as any },
+      data: { status: status as "PENDING" | "SENT" | "ACCEPTED" | "DECLINED" | "EXPIRED" },
     });
 
     // Simulate sending an email notification

@@ -6,10 +6,11 @@ import UpdateQuoteStatus from "./_components/UpdateQuoteStatus";
 export default async function QuoteDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = await params;
   const quote = await db.quote.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       customer: true,
     },
@@ -49,7 +50,7 @@ export default async function QuoteDetailPage({
       </Card>
 
       <div className="mt-6">
-        <UpdateQuoteStatus quote={quote as any} />
+        <UpdateQuoteStatus quote={quote} />
       </div>
     </div>
   );
