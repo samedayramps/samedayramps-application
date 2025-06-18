@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button, Select } from "@radix-ui/themes";
-import { updateQuoteStatus } from "./_actions/updateQuoteStatus";
+import { updateQuoteStatus } from "../_actions/updateQuoteStatus";
 
 export default function UpdateQuoteStatus({ quote }: { quote: any }) {
   const [status, setStatus] = useState(quote.status);
