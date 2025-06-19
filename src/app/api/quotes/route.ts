@@ -1,5 +1,6 @@
 import { db } from '@/lib/db';
 import { NextResponse } from 'next/server';
+import { sendAdminNotification } from '@/lib/email';
 
 export async function POST(req: Request) {
   try {
@@ -32,8 +33,11 @@ export async function POST(req: Request) {
       },
     });
 
-    // Simulate sending an email notification
-    console.log(`New quote created for ${customer.email}. Quote ID: ${quote.id}`);
+    // Send internal notification email
+    await sendAdminNotification({
+      ...quote,
+      customer
+    });
 
     return NextResponse.json(quote, { status: 201 });
   } catch (error) {

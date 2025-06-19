@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Button, TextField, Text, Heading } from "@radix-ui/themes";
+import { Button, TextField, Text, Heading, Card, Flex, Box, Callout } from "@radix-ui/themes";
+import { LockClosedIcon, EnvelopeClosedIcon, ExclamationTriangleIcon } from "@radix-ui/react-icons";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -25,62 +26,103 @@ export default function LoginForm() {
       });
 
       if (result?.error) {
-        setError("Invalid credentials");
+        setError("Invalid credentials. Please check your email and password.");
       } else {
         router.push("/dashboard");
         router.refresh();
       }
     } catch (err) {
       console.error(err);
-      setError("Something went wrong");
+      setError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="bg-white p-8 rounded-lg shadow-md">
-      <div className="text-center mb-8">
-        <Heading size="6">Admin Login</Heading>
-        <Text color="gray">Same Day Ramps Administration</Text>
-      </div>
+    <Card size={{ initial: "3", md: "4" }} style={{ maxWidth: '400px', width: '100%' }}>
+      <Flex direction="column" gap={{ initial: "4", md: "6" }}>
+        {/* Header */}
+        <Flex direction="column" align="center" gap="2">
+          <Box style={{ 
+            width: '60px', 
+            height: '60px', 
+            borderRadius: '50%', 
+            backgroundColor: 'var(--blue-9)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <LockClosedIcon color="white" width="24" height="24" />
+          </Box>
+          <Heading size={{ initial: "6", md: "7" }} weight="bold">Welcome Back</Heading>
+          <Text color="gray" size={{ initial: "2", md: "3" }} align="center">
+            Sign in to access the Same Day Ramps admin panel
+          </Text>
+        </Flex>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <Text as="label" size="3" className="block mb-2">Email</Text>
-          <TextField.Root
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="admin@samedayramps.com"
-            required
-          />
-        </div>
+        {/* Form */}
+        <form onSubmit={handleSubmit}>
+          <Flex direction="column" gap="4">
+            <Flex direction="column" gap="2">
+              <Text as="label" size={{ initial: "2", md: "3" }} weight="medium">Email Address</Text>
+              <TextField.Root
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="admin@samedayramps.com"
+                size={{ initial: "2", md: "3" }}
+                required
+              >
+                <TextField.Slot>
+                  <EnvelopeClosedIcon height="16" width="16" />
+                </TextField.Slot>
+              </TextField.Root>
+            </Flex>
 
-        <div>
-          <Text as="label" size="3" className="block mb-2">Password</Text>
-          <TextField.Root
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
-            required
-          />
-        </div>
+            <Flex direction="column" gap="2">
+              <Text as="label" size={{ initial: "2", md: "3" }} weight="medium">Password</Text>
+              <TextField.Root
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+                size={{ initial: "2", md: "3" }}
+                required
+              >
+                <TextField.Slot>
+                  <LockClosedIcon height="16" width="16" />
+                </TextField.Slot>
+              </TextField.Root>
+            </Flex>
 
-        {error && (
-          <Text color="red" size="2">{error}</Text>
-        )}
+            {error && (
+              <Callout.Root color="red" size="2">
+                <Callout.Icon>
+                  <ExclamationTriangleIcon />
+                </Callout.Icon>
+                <Callout.Text>{error}</Callout.Text>
+              </Callout.Root>
+            )}
 
-        <Button 
-          type="submit" 
-          disabled={loading}
-          className="w-full"
-          size="3"
-        >
-          {loading ? "Signing in..." : "Sign In"}
-        </Button>
-      </form>
-    </div>
+            <Button 
+              type="submit" 
+              disabled={loading}
+              size={{ initial: "2", md: "3" }}
+              style={{ width: '100%' }}
+            >
+              {loading ? "Signing in..." : "Sign In"}
+            </Button>
+          </Flex>
+        </form>
+
+        {/* Footer */}
+        <Box style={{ textAlign: 'center', paddingTop: '16px', borderTop: '1px solid var(--gray-6)' }}>
+          <Text size="2" color="gray">
+            © 2024 Same Day Ramps. All rights reserved.
+          </Text>
+        </Box>
+      </Flex>
+    </Card>
   );
 } 

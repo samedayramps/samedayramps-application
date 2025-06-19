@@ -1,17 +1,24 @@
 "use server";
 
-import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
 export async function updateQuoteStatus(id: string, status: string) {
   try {
-    const updatedQuote = await db.quote.update({
-      where: { id },
-      data: { status: status as "PENDING" | "REVIEWING" | "QUOTED" | "ACCEPTED" | "DECLINED" | "EXPIRED" | "CONVERTED" },
+    const response = await fetch(`${process.env.NEXTAUTH_URL}/api/quotes/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ 
+        status: status as "PENDING" | "REVIEWING" | "QUOTED" | "ACCEPTED" | "DECLINED" | "EXPIRED" | "CONVERTED" 
+      }),
     });
 
-    // Simulate sending an email notification
-    console.log(`Quote ${id} status updated to ${status}`);
+    if (!response.ok) {
+      throw new Error('Failed to update quote status');
+    }
+
+    const updatedQuote = await response.json();
 
     revalidatePath(`/quotes/${id}`);
     revalidatePath(`/quotes`);

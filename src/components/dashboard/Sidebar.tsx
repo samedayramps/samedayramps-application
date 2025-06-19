@@ -2,43 +2,64 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Text } from "@radix-ui/themes";
+import { Text, Flex, Box, Button } from "@radix-ui/themes";
+import { DashboardIcon, ChatBubbleIcon, PersonIcon, EnvelopeClosedIcon } from "@radix-ui/react-icons";
 
 const navigation = [
-  { name: "Dashboard", href: "/dashboard", icon: "📊" },
-  { name: "Quotes", href: "/quotes", icon: "💬" },
-  { name: "Customers", href: "/customers", icon: "👥" },
+  { name: "Dashboard", href: "/dashboard", icon: DashboardIcon },
+  { name: "Quotes", href: "/quotes", icon: ChatBubbleIcon },
+  { name: "Customers", href: "/customers", icon: PersonIcon },
+  { name: "Test Email", href: "/test-email", icon: EnvelopeClosedIcon },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <div className="bg-white w-64 shadow-lg">
-      <div className="p-6">
-        <Text size="5" weight="bold">Same Day Ramps</Text>
-        <Text size="2" color="gray">Admin Panel</Text>
-      </div>
-      
-      <nav className="mt-8">
-        {navigation.map((item) => {
-          const isActive = pathname === item.href;
-          return (
-            <Link
-              key={item.name}
-              href={item.href}
-              className={`flex items-center px-6 py-3 text-sm font-medium ${
-                isActive
-                  ? "bg-blue-50 text-blue-700 border-r-2 border-blue-700"
-                  : "text-gray-600 hover:bg-gray-50"
-              }`}
-            >
-              <span className="mr-3">{item.icon}</span>
-              {item.name}
-            </Link>
-          );
-        })}
-      </nav>
-    </div>
+    <Box className="bg-white w-64 shadow-lg border-r">
+      <Flex direction="column" height="100vh">
+        {/* Logo */}
+        <Box p="6">
+          <Flex direction="column" gap="1">
+            <Text size="6" weight="bold" color="blue">Same Day Ramps</Text>
+            <Text size="2" color="gray">Admin Panel</Text>
+          </Flex>
+        </Box>
+        
+        {/* Navigation */}
+        <Flex direction="column" gap="1" px="3" style={{ flex: 1 }}>
+          {navigation.map((item) => {
+            const isActive = pathname === item.href;
+            const IconComponent = item.icon;
+            
+            return (
+              <Button
+                key={item.name}
+                asChild
+                variant={isActive ? "soft" : "ghost"}
+                color={isActive ? "blue" : "gray"}
+                size="3"
+                style={{ 
+                  justifyContent: "flex-start",
+                  fontWeight: isActive ? "600" : "400"
+                }}
+              >
+                <Link href={item.href}>
+                  <IconComponent />
+                  {item.name}
+                </Link>
+              </Button>
+            );
+          })}
+        </Flex>
+
+        {/* Footer */}
+        <Box p="4" style={{ borderTop: "1px solid var(--gray-6)" }}>
+          <Text size="1" color="gray" align="center">
+            © 2024 Same Day Ramps
+          </Text>
+        </Box>
+      </Flex>
+    </Box>
   );
 } 
