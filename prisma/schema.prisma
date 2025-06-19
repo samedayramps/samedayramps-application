@@ -179,7 +179,7 @@ model Rental {
   // Rental details
   startDate   DateTime
   endDate     DateTime?
-  status      RentalStatus @default(ACTIVE)
+  status      RentalStatus @default(PENDING)
   
   // Financial
   upfrontCost         Decimal     // Delivery and installation (paid upfront)
@@ -202,6 +202,8 @@ model Rental {
   
   // General notes
   notes               String?
+  eSignaturesContractId String?      @unique
+  signedAgreementUrl    String?
   
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt

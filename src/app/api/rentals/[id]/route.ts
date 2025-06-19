@@ -1,29 +1,31 @@
 import { db } from '@/lib/db';
 import { NextResponse } from 'next/server';
-import { RentalStatus } from '@prisma/client';
 
 interface UpdateData {
-  status?: RentalStatus;
+  status?: 'PENDING' | 'AGREEMENT_SENT' | 'AGREEMENT_SIGNED' | 'INSTALLATION_SCHEDULED' | 'ACTIVE' | 'REMOVAL_SCHEDULED' | 'ON_HOLD' | 'COMPLETED' | 'CANCELLED';
   installationDate?: Date;
   removalDate?: Date;
+  eSignaturesContractId?: string;
 }
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { id: string } }
+  { params: { id } }: { params: { id: string } }
 ) {
   try {
-    const { id } = params;
     const { action } = await req.json();
 
     const updateData: UpdateData = {};
+    const rental = await db.rental.findUnique({
+      where: { id },
+      include: { customer: true, quote: true },
+    });
+
+    if (!rental) {
+      return new NextResponse(JSON.stringify({ message: 'Rental not found' }), { status: 404 });
+    }
 
     if (action === 'revertStage') {
-      const rental = await db.rental.findUnique({ where: { id } });
-      if (!rental) {
-        return new NextResponse(JSON.stringify({ message: 'Rental not found' }), { status: 404 });
-      }
-
       switch (rental.status) {
         case 'AGREEMENT_SENT': updateData.status = 'PENDING'; break;
         case 'AGREEMENT_SIGNED': updateData.status = 'AGREEMENT_SENT'; break;
@@ -36,6 +38,62 @@ export async function PATCH(
     } else {
       switch (action) {
         case 'sendAgreement':
+          if (!process.env.ESIGNATURES_API_KEY || !process.env.ESIGNATURES_TEMPLATE_ID) {
+            throw new Error('eSignatures API key or Template ID is not configured.');
+          }
+
+          const response = await fetch(`https://esignatures.com/api/contracts?token=${process.env.ESIGNATURES_API_KEY}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              template_id: process.env.ESIGNATURES_TEMPLATE_ID,
+              title: `Rental Agreement for ${rental.customer.firstName} ${rental.customer.lastName} - ${rental.quote?.installationAddress || 'N/A'}`,
+              metadata: rental.id,
+              test: process.env.NODE_ENV !== 'production' ? 'yes' : 'no',
+              signers: [
+                {
+                  name: `${rental.customer.firstName} ${rental.customer.lastName}`,
+                  email: rental.customer.email,
+                },
+              ],
+              placeholder_fields: [
+                {
+                  api_key: "customer_name",
+                  value: `${rental.customer.firstName} ${rental.customer.lastName}`
+                },
+                {
+                  api_key: "installation_address",
+                  value: rental.quote?.installationAddress || 'N/A'
+                },
+                {
+                  api_key: "upfront_cost",
+                  value: `$${rental.upfrontCost.toFixed(2)}`
+                },
+                {
+                  api_key: "monthly_rate",
+                  value: `$${rental.monthlyRate.toFixed(2)}`
+                }
+              ]
+            }),
+          });
+          
+          if (!response.ok) {
+            const errorBody = await response.json();
+            console.error('eSignatures.com Error:', errorBody);
+            throw new Error(`Failed to create eSignature contract: ${errorBody.error_message || 'Unknown error'}`);
+          }
+
+          const responseData = await response.json();
+          const contractId = responseData.data?.contract?.id;
+
+          if (!contractId) {
+             console.error('Could not find contract ID in eSignatures.com response:', responseData);
+             throw new Error('Could not extract contract ID from eSignatures.com response.');
+          }
+
+          updateData.eSignaturesContractId = contractId;
           updateData.status = "AGREEMENT_SENT";
           break;
         case 'markAgreementSigned':

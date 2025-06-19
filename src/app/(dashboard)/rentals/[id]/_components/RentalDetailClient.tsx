@@ -116,14 +116,24 @@ export default function RentalDetailClient({ initialRental }: { initialRental: R
                 <p className="text-sm text-gray-600">
                   Installation Address: {rental.quote.installationAddress}
                 </p>
-                <p className="text-sm text-gray-600 mt-2">
+                <div className="mt-4 flex space-x-4">
                   <a
                     href={`/quotes/${rental.quote.id}`}
-                    className="text-blue-600 hover:underline"
+                    className="text-sm font-medium text-blue-600 hover:underline"
                   >
                     View full quote details
                   </a>
-                </p>
+                  {rental.signedAgreementUrl && (
+                    <a
+                      href={rental.signedAgreementUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm font-medium text-green-600 hover:underline"
+                    >
+                      View Signed Agreement
+                    </a>
+                  )}
+                </div>
               </div>
             )}
           </div>

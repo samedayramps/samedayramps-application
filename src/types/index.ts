@@ -38,4 +38,8 @@ export interface Rental {
   upfrontCost: Decimal;
   totalPaid: Decimal;
   nextPaymentDate?: Date | null;
+  eSignaturesContractId?: string | null;
+  signedAgreementUrl?: string | null;
+  installationDate?: Date | string | null;
+  removalDate?: Date | string | null;
 } 

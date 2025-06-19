@@ -69,6 +69,37 @@ This is an automated notification from Same Day Ramps admin system.
   }
 }
 
+export async function sendAgreementSignedNotification(rentalId: string, customerName: string, adminEmail: string) {
+  if (!process.env.RESEND_API_KEY || !resend) {
+    console.log('Email service not configured - skipping agreement signed notification');
+    return;
+  }
+
+  try {
+    await resend.emails.send({
+      from: 'admin@samedayramps.com',
+      to: adminEmail,
+      subject: `✅ Agreement Signed - Rental ID: ${rentalId.slice(-8)}`,
+      text: `
+RENTAL AGREEMENT SIGNED
+
+A rental agreement has been successfully signed by the customer.
+
+Customer: ${customerName}
+Rental ID: ${rentalId}
+
+You can now proceed with scheduling the installation.
+
+View Rental Details: ${process.env.NEXTAUTH_URL}/rentals/${rentalId}
+
+This is an automated notification from the Same Day Ramps admin system.
+      `,
+    });
+  } catch (error) {
+    console.error('Failed to send agreement signed notification:', error);
+  }
+}
+
 export async function sendQuoteEmail(quote: QuoteWithCustomer) {
   if (!process.env.RESEND_API_KEY || !resend) {
     console.log('Email service not configured - skipping quote email');
