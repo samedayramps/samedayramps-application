@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Button, TextField, Text, Heading, Card, Flex, Box, Callout } from "@radix-ui/themes";
-import { LockClosedIcon, EnvelopeClosedIcon, ExclamationTriangleIcon } from "@radix-ui/react-icons";
+import { Lock, Mail, AlertTriangle } from "lucide-react";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
@@ -40,89 +39,84 @@ export default function LoginForm() {
   };
 
   return (
-    <Card size={{ initial: "3", md: "4" }} style={{ maxWidth: '400px', width: '100%' }}>
-      <Flex direction="column" gap={{ initial: "4", md: "6" }}>
+    <div className="bg-white rounded-lg shadow-lg p-6 md:p-8 max-w-md w-full">
+      <div className="space-y-6">
         {/* Header */}
-        <Flex direction="column" align="center" gap="2">
-          <Box style={{ 
-            width: '60px', 
-            height: '60px', 
-            borderRadius: '50%', 
-            backgroundColor: 'var(--blue-9)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            <LockClosedIcon color="white" width="24" height="24" />
-          </Box>
-          <Heading size={{ initial: "6", md: "7" }} weight="bold">Welcome Back</Heading>
-          <Text color="gray" size={{ initial: "2", md: "3" }} align="center">
+        <div className="flex flex-col items-center space-y-3">
+          <div className="w-15 h-15 bg-blue-600 rounded-full flex items-center justify-center">
+            <Lock className="h-6 w-6 text-white" />
+          </div>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Welcome Back</h1>
+          <p className="text-sm md:text-base text-gray-600 text-center">
             Sign in to access the Same Day Ramps admin panel
-          </Text>
-        </Flex>
+          </p>
+        </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit}>
-          <Flex direction="column" gap="4">
-            <Flex direction="column" gap="2">
-              <Text as="label" size={{ initial: "2", md: "3" }} weight="medium">Email Address</Text>
-              <TextField.Root
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="flex flex-col space-y-2">
+            <label htmlFor="email" className="text-sm md:text-base font-medium text-gray-900">
+              Email Address
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Mail className="h-4 w-4 text-gray-400" />
+              </div>
+              <input
+                id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="admin@samedayramps.com"
-                size={{ initial: "2", md: "3" }}
                 required
-              >
-                <TextField.Slot>
-                  <EnvelopeClosedIcon height="16" width="16" />
-                </TextField.Slot>
-              </TextField.Root>
-            </Flex>
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              />
+            </div>
+          </div>
 
-            <Flex direction="column" gap="2">
-              <Text as="label" size={{ initial: "2", md: "3" }} weight="medium">Password</Text>
-              <TextField.Root
+          <div className="flex flex-col space-y-2">
+            <label htmlFor="password" className="text-sm md:text-base font-medium text-gray-900">
+              Password
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Lock className="h-4 w-4 text-gray-400" />
+              </div>
+              <input
+                id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
-                size={{ initial: "2", md: "3" }}
                 required
-              >
-                <TextField.Slot>
-                  <LockClosedIcon height="16" width="16" />
-                </TextField.Slot>
-              </TextField.Root>
-            </Flex>
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              />
+            </div>
+          </div>
 
-            {error && (
-              <Callout.Root color="red" size="2">
-                <Callout.Icon>
-                  <ExclamationTriangleIcon />
-                </Callout.Icon>
-                <Callout.Text>{error}</Callout.Text>
-              </Callout.Root>
-            )}
+          {error && (
+            <div className="flex items-start space-x-2 p-3 bg-red-50 rounded-lg border border-red-200">
+              <AlertTriangle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
+              <p className="text-sm text-red-700">{error}</p>
+            </div>
+          )}
 
-            <Button 
-              type="submit" 
-              disabled={loading}
-              size={{ initial: "2", md: "3" }}
-              style={{ width: '100%' }}
-            >
-              {loading ? "Signing in..." : "Sign In"}
-            </Button>
-          </Flex>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {loading ? "Signing in..." : "Sign In"}
+          </button>
         </form>
 
         {/* Footer */}
-        <Box style={{ textAlign: 'center', paddingTop: '16px', borderTop: '1px solid var(--gray-6)' }}>
-          <Text size="2" color="gray">
+        <div className="text-center pt-4 border-t border-gray-200">
+          <p className="text-xs text-gray-500">
             © 2024 Same Day Ramps. All rights reserved.
-          </Text>
-        </Box>
-      </Flex>
-    </Card>
+          </p>
+        </div>
+      </div>
+    </div>
   );
 } 

@@ -32,25 +32,36 @@ export async function sendAdminNotification(quote: QuoteWithCustomer) {
     return;
   }
 
-  const urgencyEmoji = quote.urgency === 'URGENT' ? '🚨 ' : '';
+  const urgencyPrefix = quote.urgency === 'URGENT' ? 'URGENT - ' : '';
   
   try {
     await resend.emails.send({
       from: 'admin@samedayramps.com',
       to: 'ty@samedayramps.com',
-      subject: `${urgencyEmoji}New Quote Request #${quote.id.slice(-8)}`,
+      subject: `${urgencyPrefix}New Quote Request - ID: ${quote.id.slice(-8)}`,
       text: `
-New quote request received:
+SAME DAY RAMPS - NEW QUOTE REQUEST
 
-Customer: ${quote.customer.firstName} ${quote.customer.lastName}
+Quote ID: ${quote.id}
+${quote.urgency ? `Priority: ${quote.urgency}` : ''}
+
+CUSTOMER INFORMATION:
+Name: ${quote.customer.firstName} ${quote.customer.lastName}
 Email: ${quote.customer.email}
 Phone: ${quote.customer.phone}
-Address: ${quote.installationAddress}
-Urgency: ${quote.urgency}
 
-${quote.customerNotes ? `Notes: ${quote.customerNotes}` : ''}
+PROJECT DETAILS:
+Installation Address: ${quote.installationAddress}
+${quote.estimatedHeight ? `Estimated Height: ${quote.estimatedHeight} inches` : ''}
+${quote.estimatedLength ? `Estimated Length: ${quote.estimatedLength} feet` : ''}
 
-View in admin: ${process.env.NEXTAUTH_URL}/quotes/${quote.id}
+${quote.customerNotes ? `CUSTOMER NOTES:\n${quote.customerNotes}` : ''}
+
+ADMIN ACTIONS:
+View Quote: ${process.env.NEXTAUTH_URL}/quotes/${quote.id}
+All Quotes: ${process.env.NEXTAUTH_URL}/quotes
+
+This is an automated notification from Same Day Ramps admin system.
       `,
     });
   } catch (error) {
@@ -68,27 +79,43 @@ export async function sendQuoteEmail(quote: QuoteWithCustomer) {
     await resend.emails.send({
       from: 'quotes@samedayramps.com',
       to: quote.customer.email,
-      subject: 'Your Wheelchair Ramp Quote from Same Day Ramps',
+      subject: 'Your Wheelchair Ramp Rental Quote - Same Day Ramps',
       text: `
-Hi ${quote.customer.firstName},
+Dear ${quote.customer.firstName} ${quote.customer.lastName},
 
-Thank you for your interest in Same Day Ramps! We've prepared a custom quote for your wheelchair ramp rental.
+Thank you for requesting a wheelchair ramp rental quote from Same Day Ramps. We have prepared a customized quote based on your requirements.
 
+PROJECT DETAILS:
 Installation Address: ${quote.installationAddress}
-${quote.estimatedHeight ? `Estimated Height: ${quote.estimatedHeight} inches` : ''}
-${quote.estimatedLength ? `Estimated Length: ${quote.estimatedLength} feet` : ''}
+${quote.estimatedHeight ? `Estimated Ramp Height: ${quote.estimatedHeight} inches` : ''}
+${quote.estimatedLength ? `Estimated Ramp Length: ${quote.estimatedLength} feet` : ''}
 
-PRICING:
+QUOTE INFORMATION:
 ${quote.installationFee ? `Installation Fee: $${formatDecimal(quote.installationFee)}` : ''}
-${quote.monthlyRate ? `Monthly Rental: $${formatDecimal(quote.monthlyRate)}/month` : ''}
+${quote.monthlyRate ? `Monthly Rental Rate: $${formatDecimal(quote.monthlyRate)} per month` : ''}
 ${quote.estimatedCost ? `Total Estimated Cost: $${formatDecimal(quote.estimatedCost)}` : ''}
 
-This quote is valid for 30 days. We can typically install your ramp within 24-48 hours of acceptance.
+IMPORTANT INFORMATION:
+- This quote is valid for 30 days from the date of this email
+- Installation typically completed within 24-48 hours of acceptance
+- All installations include safety inspection and customer training
+- Monthly rental includes maintenance and support
 
-To accept this quote or if you have any questions, please call us at (940) 536-9626 or reply to this email.
+NEXT STEPS:
+To accept this quote or discuss any questions, please contact us:
+Phone: (940) 536-9626
+Email: quotes@samedayramps.com
 
-Best regards,
+We appreciate your business and look forward to serving your accessibility needs.
+
+Sincerely,
 Same Day Ramps Team
+
+---
+Same Day Ramps
+Professional Wheelchair Ramp Rentals
+Phone: (940) 536-9626
+Email: info@samedayramps.com
       `,
     });
   } catch (error) {

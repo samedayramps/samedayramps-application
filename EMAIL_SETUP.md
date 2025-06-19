@@ -24,7 +24,8 @@ The system sends two types of emails:
 - Sent when a new quote is created
 - Goes to: `ty@samedayramps.com`
 - Includes customer details and quote information
-- Urgent quotes get a 🚨 emoji in the subject
+- Urgent quotes get "URGENT -" prefix in the subject
+- Professional formatting with clear sections
 
 ### 2. Customer Quote Emails
 - Sent when quote status changes to "QUOTED"
@@ -41,13 +42,14 @@ If `RESEND_API_KEY` is not configured, the system will:
 
 ## Email Templates
 
-Both emails use plain text format for maximum compatibility. The templates include:
+Both emails use professional plain text format optimized for spam filter compliance. The templates include:
 
-- Customer information
-- Quote details
-- Pricing (when available)
-- Contact information
-- Next steps
+- Clear section headers and formatting
+- Complete customer and project information
+- Detailed pricing breakdown (when available)
+- Professional contact information and branding
+- Clear next steps and call-to-action
+- No emojis or special characters that trigger spam filters
 
 ## Troubleshooting
 

@@ -1,7 +1,6 @@
 import { db } from "@/lib/db";
-import { Button, Heading, Card, Flex, Box, Text, Avatar, IconButton, TextField, Badge } from "@radix-ui/themes";
 import Link from "next/link";
-import { MagnifyingGlassIcon, EyeOpenIcon } from "@radix-ui/react-icons";
+import { Search, Eye } from "lucide-react";
 
 interface Customer {
   firstName: string;
@@ -23,14 +22,14 @@ interface Quote {
 
 const getStatusColor = (status: string) => {
   switch (status) {
-    case 'PENDING': return 'gray';
-    case 'REVIEWING': return 'blue';
-    case 'QUOTED': return 'yellow';
-    case 'ACCEPTED': return 'green';
-    case 'CONVERTED': return 'green';
-    case 'DECLINED': return 'red';
-    case 'EXPIRED': return 'red';
-    default: return 'gray';
+    case 'PENDING': return 'bg-gray-100 text-gray-800';
+    case 'REVIEWING': return 'bg-blue-100 text-blue-800';
+    case 'QUOTED': return 'bg-yellow-100 text-yellow-800';
+    case 'ACCEPTED': return 'bg-green-100 text-green-800';
+    case 'CONVERTED': return 'bg-green-100 text-green-800';
+    case 'DECLINED': return 'bg-red-100 text-red-800';
+    case 'EXPIRED': return 'bg-red-100 text-red-800';
+    default: return 'bg-gray-100 text-gray-800';
   }
 };
 
@@ -58,113 +57,120 @@ export default async function QuotesPage() {
   }, {} as Record<string, number>);
 
   return (
-    <Box p={{ initial: "4", md: "6" }}>
-      <Flex direction="column" gap={{ initial: "4", md: "6" }}>
+    <div className="p-4 md:p-6">
+      <div className="space-y-4 md:space-y-6">
         {/* Header */}
-        <Flex direction={{ initial: "column", sm: "row" }} justify="between" align={{ initial: "start", sm: "center" }} gap="4">
-          <Flex direction="column" gap="1">
-            <Heading size={{ initial: "6", md: "8" }} weight="bold">Quotes</Heading>
-            <Text size={{ initial: "2", md: "3" }} color="gray">{quotes.length} total quotes</Text>
-          </Flex>
-          <TextField.Root placeholder="Search quotes..." size="2" style={{ width: "100%", maxWidth: "300px" }}>
-            <TextField.Slot>
-              <MagnifyingGlassIcon height="16" width="16" />
-            </TextField.Slot>
-          </TextField.Root>
-        </Flex>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="flex flex-col space-y-1">
+            <h1 className="text-2xl md:text-4xl font-bold text-gray-900">Quotes</h1>
+            <p className="text-sm md:text-base text-gray-600">{quotes.length} total quotes</p>
+          </div>
+          <div className="relative w-full sm:w-auto sm:max-w-xs">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search className="h-4 w-4 text-gray-400" />
+            </div>
+            <input
+              type="text"
+              placeholder="Search quotes..."
+              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            />
+          </div>
+        </div>
 
         {/* Status Overview */}
-        <Flex gap="3" wrap="wrap">
+        <div className="flex flex-wrap gap-3">
           {Object.entries(statusCounts).map(([status, count]) => (
-            <Badge key={status} color={getStatusColor(status)} variant="soft" size="2">
+            <span
+              key={status}
+              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(status)}`}
+            >
               {status.toLowerCase()}: {count}
-            </Badge>
+            </span>
           ))}
-        </Flex>
+        </div>
 
-                {/* Quotes Grid */}
-        <Flex direction="column" gap="3">
+        {/* Quotes Grid */}
+        <div className="space-y-3">
           {quotes.length > 0 ? quotes.map((quote) => (
-            <Card key={quote.id} size="3">
-              <Flex direction={{ initial: "column", md: "row" }} gap="4">
-                <Flex gap="4" align="start" style={{ flex: 1 }}>
+            <div key={quote.id} className="bg-white rounded-lg shadow p-4 md:p-6">
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex gap-4 items-start flex-1">
                   {/* Customer Avatar */}
-                  <Avatar
-                    size={{ initial: "2", md: "3" }}
-                    fallback={`${quote.customer.firstName[0]}${quote.customer.lastName[0]}`}
-                    color="blue"
-                  />
+                  <div className="w-8 h-8 md:w-12 md:h-12 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-white text-sm md:text-base font-medium">
+                      {quote.customer.firstName[0]}{quote.customer.lastName[0]}
+                    </span>
+                  </div>
                   
                   {/* Quote Details */}
-                  <Flex direction="column" gap="2" style={{ flex: 1 }}>
-                    <Flex direction={{ initial: "column", sm: "row" }} justify="between" align={{ initial: "start", sm: "start" }} gap="2">
-                      <Flex direction="column" gap="1">
-                        <Text size={{ initial: "3", md: "4" }} weight="bold">
+                  <div className="flex flex-col space-y-2 flex-1">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-start gap-2">
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm md:text-base font-bold text-gray-900">
                           {quote.customer.firstName} {quote.customer.lastName}
-                        </Text>
-                        <Text size="2" color="gray">
+                        </p>
+                        <p className="text-xs md:text-sm text-gray-600">
                           {quote.customer.email}
-                        </Text>
-                        <Text size="2" color="gray" className="sm:hidden">
+                        </p>
+                        <p className="text-xs md:text-sm text-gray-600 sm:hidden">
                           {quote.customer.phone}
-                        </Text>
-                        <Text size="2" color="gray" className="hidden sm:inline">
+                        </p>
+                        <p className="text-xs md:text-sm text-gray-600 hidden sm:block">
                           {quote.customer.email} • {quote.customer.phone}
-                        </Text>
-                      </Flex>
-                      <Badge color={getStatusColor(quote.status)} variant="soft" size={{ initial: "1", md: "2" }}>
+                        </p>
+                      </div>
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(quote.status)}`}>
                         {quote.status.toLowerCase()}
-                      </Badge>
-                    </Flex>
+                      </span>
+                    </div>
                     
-                    <Text size={{ initial: "2", md: "3" }} color="gray" style={{ 
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden',
-                    }}>
-                      📍 {quote.installationAddress}
-                    </Text>
+                    <p className="text-xs md:text-sm text-gray-600 line-clamp-2">
+                      {quote.installationAddress}
+                    </p>
                     
-                    <Flex direction={{ initial: "column", sm: "row" }} gap={{ initial: "1", sm: "4" }} align={{ initial: "start", sm: "center" }}>
-                      <Text size="2" color="gray">
+                    <div className="flex flex-col sm:flex-row gap-1 sm:gap-4 items-start sm:items-center">
+                      <p className="text-xs md:text-sm text-gray-600">
                         Created: {new Date(quote.createdAt).toLocaleDateString()}
-                      </Text>
+                      </p>
                       {quote.estimatedCost ? (
-                        <Text size="2" weight="medium" color="green">
+                        <p className="text-xs md:text-sm font-medium text-green-600">
                           Est: {formatCurrency(quote.estimatedCost)}
-                        </Text>
+                        </p>
                       ) : null}
-                    </Flex>
-                  </Flex>
-                </Flex>
+                    </div>
+                  </div>
+                </div>
 
                 {/* Actions */}
-                <Flex direction={{ initial: "row", md: "row" }} gap="2" align="center" justify={{ initial: "start", md: "center" }} style={{ width: "100%" }}>
-                  <IconButton asChild size="2" variant="soft" className="md:flex hidden">
-                    <Link href={`/quotes/${quote.id}`}>
-                      <EyeOpenIcon />
-                    </Link>
-                  </IconButton>
-                  <Button asChild size="2" variant="outline" style={{ flex: 1, maxWidth: "200px" }}>
-                    <Link href={`/quotes/${quote.id}`}>
-                      View Details
-                    </Link>
-                  </Button>
-                </Flex>
-              </Flex>
-            </Card>
+                <div className="flex flex-row md:flex-row gap-2 items-center justify-start md:justify-center w-full">
+                  <Link
+                    href={`/quotes/${quote.id}`}
+                    className="hidden md:flex items-center justify-center w-8 h-8 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Link>
+                  <Link
+                    href={`/quotes/${quote.id}`}
+                    className="flex-1 md:flex-none md:w-auto px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                  >
+                    View Details
+                  </Link>
+                </div>
+              </div>
+            </div>
           )) : (
-            <Card size="4">
-              <Flex direction="column" align="center" justify="center" gap="3" py="8">
-                <Text size="6">📋</Text>
-                <Text size="4" weight="medium">No quotes found</Text>
-                <Text size="3" color="gray">Quotes will appear here when customers submit requests</Text>
-              </Flex>
-            </Card>
+            <div className="bg-white rounded-lg shadow p-6 md:p-8">
+              <div className="flex flex-col items-center justify-center space-y-3 py-8">
+                <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
+                  <div className="w-6 h-6 bg-gray-400 rounded"></div>
+                </div>
+                <p className="text-lg md:text-xl font-medium text-gray-900">No quotes found</p>
+                <p className="text-sm md:text-base text-gray-600">Quotes will appear here when customers submit requests</p>
+              </div>
+            </div>
           )}
-        </Flex>
-      </Flex>
-    </Box>
+        </div>
+      </div>
+    </div>
   );
 } 

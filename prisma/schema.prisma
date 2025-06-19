@@ -25,11 +25,97 @@ model Customer {
   lastName  String
   email     String   @unique
   phone     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  quotes    Quote[]
+  
+  // Enhanced customer information
+  alternatePhone    String?
+  preferredContact  ContactMethod @default(EMAIL)
+  address           String?       // Primary address
+  city              String?
+  state             String?
+  zipCode           String?
+  
+  // Customer classification
+  customerType      CustomerType @default(INDIVIDUAL)
+  referralSource    String?       // How they found us
+  priority          Priority @default(STANDARD)
+  
+  // Status and lifecycle
+  status            CustomerStatus @default(ACTIVE)
+  lifecycleStage    LifecycleStage @default(LEAD)
+  
+  // Tracking
+  totalQuotes       Int @default(0)
+  totalRentals      Int @default(0)
+  totalRevenue      Decimal @default(0)
+  lastContactDate   DateTime?
+  nextFollowUpDate  DateTime?
+  
+  // Metadata
+  notes             String?
+  tags              String[]      // For categorization
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  quotes            Quote[]
+  rentals           Rental[]
+  communications    Communication[]
+  tasks             Task[]
+  payments          Payment[]
 
   @@map("customers")
+}
+
+model Communication {
+  id          String            @id @default(cuid())
+  customerId  String
+  
+  type        CommunicationType
+  direction   CommunicationDirection
+  subject     String?
+  content     String
+  
+  // Contact details
+  contactMethod ContactMethod
+  phoneNumber   String?
+  emailAddress  String?
+  
+  // Metadata
+  isImportant   Boolean @default(false)
+  followUpDate  DateTime?
+  
+  createdAt     DateTime @default(now())
+  createdBy     String    // User ID who logged the communication
+  
+  customer      Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@map("communications")
+}
+
+model Task {
+  id          String     @id @default(cuid())
+  customerId  String?
+  quoteId     String?
+  
+  title       String
+  description String?
+  priority    Priority   @default(STANDARD)
+  status      TaskStatus @default(PENDING)
+  
+  dueDate     DateTime?
+  completedAt DateTime?
+  
+  assignedTo  String?    // User ID
+  createdBy   String     // User ID
+  
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  
+  customer    Customer?  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  quote       Quote?     @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+
+  @@map("tasks")
 }
 
 model Quote {
@@ -39,34 +125,199 @@ model Quote {
   status              QuoteStatus  @default(PENDING)
   createdAt           DateTime     @default(now())
   updatedAt           DateTime     @updatedAt
+  
+  // Quote details
   adminNotes          String?
-  contactMethod       String?
   customerNotes       String?
-  estimatedCost       Decimal?
+  contactMethod       String?
+  
+  // Ramp specifications
   estimatedHeight     Int?
   estimatedLength     Int?
-  expiresAt           DateTime?
   hasLandings         Boolean      @default(false)
-  installationFee     Decimal?
-  lastContactDate     DateTime?
-  monthlyRate         Decimal?
   needsHandrails      Boolean      @default(true)
-  nextFollowUpDate    DateTime?
   surfaceType         String?
+  
+  // Pricing
+  upfrontCost         Decimal?     // Delivery and installation cost
+  monthlyRate         Decimal?     // Monthly rental rate
+  totalEstimatedCost  Decimal?     // Calculated total
+  deliveryFee         Decimal?
+  installFee          Decimal?
+  rampLength          Decimal?
+  
+  // Workflow tracking
+  informationGathered Boolean      @default(false)
+  priceProvided       Boolean      @default(false)
+  customerAccepted    Boolean      @default(false)
+  rentalAgreementSent Boolean      @default(false)
+  
+  // Dates
+  expiresAt           DateTime?
+  lastContactDate     DateTime?
+  nextFollowUpDate    DateTime?
+  priceProvidedDate   DateTime?
+  acceptedDate        DateTime?
+  
+  // Communication tracking
+  lastCommunication   DateTime?
+  communicationCount  Int @default(0)
   urgency             QuoteUrgency @default(STANDARD)
+  
   customer            Customer     @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  tasks               Task[]
+  rental              Rental?      // One quote can become one rental
 
   @@map("quotes")
 }
 
-enum QuoteStatus {
+model Rental {
+  id          String   @id @default(cuid())
+  customerId  String
+  quoteId     String?  @unique // Links back to the original quote (one-to-one)
+  
+  // Rental details
+  startDate   DateTime
+  endDate     DateTime?
+  status      RentalStatus @default(ACTIVE)
+  
+  // Financial
+  upfrontCost         Decimal     // Delivery and installation (paid upfront)
+  monthlyRate         Decimal     // Monthly rental rate
+  totalPaid           Decimal @default(0)
+  
+  // Payment tracking
+  upfrontPaid         Boolean @default(false)
+  upfrontPaidDate     DateTime?
+  firstMonthPaid      Boolean @default(false)
+  firstMonthPaidDate  DateTime?
+  lastPaymentDate     DateTime?
+  nextPaymentDate     DateTime?
+  
+  // Installation details
+  installationDate    DateTime?
+  installationNotes   String?
+  removalDate         DateTime?
+  removalNotes        String?
+  
+  // General notes
+  notes               String?
+  
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  
+  customer            Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  quote               Quote?   @relation(fields: [quoteId], references: [id])
+  payments            Payment[]
+
+  @@map("rentals")
+}
+
+model Payment {
+  id          String   @id @default(cuid())
+  rentalId    String
+  customerId  String
+  
+  amount      Decimal
+  type        PaymentType
+  status      PaymentStatus @default(PENDING)
+  
+  // Payment details
+  paymentMethod String?
+  reference     String?     // External payment reference
+  notes         String?
+  
+  // Dates
+  dueDate      DateTime?
+  paidDate     DateTime?
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  rental       Rental   @relation(fields: [rentalId], references: [id], onDelete: Cascade)
+  customer     Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@map("payments")
+}
+
+enum ContactMethod {
+  EMAIL
+  PHONE
+  TEXT
+  IN_PERSON
+}
+
+enum CustomerType {
+  INDIVIDUAL
+  FAMILY
+  HEALTHCARE_FACILITY
+  CONTRACTOR
+  PROPERTY_MANAGER
+}
+
+enum CustomerStatus {
+  ACTIVE
+  INACTIVE
+  BLOCKED
+}
+
+enum LifecycleStage {
+  LEAD           // Just inquired
+  PROSPECT       // Received quote
+  CUSTOMER       // Has active rental
+  FORMER_CUSTOMER // Rental ended
+  ADVOCATE       // Refers others
+}
+
+enum Priority {
+  LOW
+  STANDARD
+  HIGH
+  URGENT
+}
+
+enum CommunicationType {
+  QUOTE_REQUEST
+  QUOTE_FOLLOWUP
+  INSTALLATION_SCHEDULING
+  PAYMENT_DISCUSSION
+  SUPPORT_REQUEST
+  GENERAL_INQUIRY
+  FEEDBACK
+}
+
+enum CommunicationDirection {
+  INBOUND   // Customer contacted us
+  OUTBOUND  // We contacted customer
+}
+
+enum TaskStatus {
   PENDING
-  REVIEWING
-  QUOTED
-  ACCEPTED
-  DECLINED
-  EXPIRED
-  CONVERTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum QuoteStatus {
+  PENDING             // Initial quote request
+  INFORMATION_GATHERING // You're collecting details
+  QUOTED              // Price provided to customer
+  ACCEPTED            // Customer accepted the quote
+  DECLINED            // Customer declined
+  EXPIRED             // Quote expired
+  CONVERTED           // Became a rental
+}
+
+enum RentalStatus {
+  PENDING               // Quote accepted, waiting for agreement
+  AGREEMENT_SENT        // Rental agreement sent
+  AGREEMENT_SIGNED      // Customer has signed the agreement
+  INSTALLATION_SCHEDULED// Installation date is set
+  ACTIVE                // Ramp installed, monthly payments ongoing
+  REMOVAL_SCHEDULED     // Removal date is set
+  ON_HOLD               // Temporarily paused
+  COMPLETED             // Ramp removed, rental ended
+  CANCELLED             // Cancelled before installation
 }
 
 enum UserRole {
@@ -79,4 +330,35 @@ enum QuoteUrgency {
   URGENT
   STANDARD
   FLEXIBLE
+}
+
+enum PaymentType {
+  UPFRONT             // Delivery and installation
+  MONTHLY             // Monthly rental payment
+  LATE_FEE            // Late payment fee
+  ADJUSTMENT          // Price adjustment
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
+model Settings {
+  id                        String   @id @default("singleton")
+  warehouseAddress          String   // User-entered address
+  warehouseFormattedAddress String?  // Google-validated formatted address
+  warehousePlaceId          String?  // Google Place ID for reliable lookups
+  costPerMile               Decimal
+  installFeePerFoot         Decimal
+  rentalPricePerFoot        Decimal
+  deliveryFlatFee           Decimal  @default(0)
+  installFlatFee            Decimal  @default(0)
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+
+  @@map("settings")
 }

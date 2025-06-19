@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Box, Button, Card, Flex, Heading, Text, Callout } from "@radix-ui/themes";
-import { EnvelopeClosedIcon, CheckIcon, ExclamationTriangleIcon } from "@radix-ui/react-icons";
+import { Mail, Check, AlertTriangle } from "lucide-react";
 
 export default function TestEmailPage() {
   const [loading, setLoading] = useState<string | null>(null);
@@ -36,84 +35,92 @@ export default function TestEmailPage() {
   };
 
   return (
-    <Box p={{ initial: "4", md: "6" }}>
-      <Flex direction="column" gap={{ initial: "4", md: "6" }}>
-        <Flex direction="column" gap="2">
-          <Heading size={{ initial: "6", md: "8" }} weight="bold">Email Testing</Heading>
-          <Text size={{ initial: "2", md: "3" }} color="gray">
+    <div className="p-4 md:p-6">
+      <div className="space-y-4 md:space-y-6">
+        <div className="flex flex-col space-y-2">
+          <h1 className="text-2xl md:text-4xl font-bold text-gray-900">Email Testing</h1>
+          <p className="text-sm md:text-base text-gray-600">
             Test the email notification system
-          </Text>
-        </Flex>
+          </p>
+        </div>
 
-        <Card size="3">
-          <Flex direction="column" gap="4">
-            <Heading size="5" weight="medium">Test Email Functions</Heading>
+        <div className="bg-white rounded-lg shadow p-4 md:p-6">
+          <div className="space-y-4">
+            <h2 className="text-lg md:text-xl font-medium text-gray-900">Test Email Functions</h2>
             
-            <Flex direction="column" gap="3">
-              <Flex direction="column" gap="2">
-                <Text size="3" weight="medium">Admin Notification</Text>
-                <Text size="2" color="gray">
+            <div className="space-y-3">
+              <div className="flex flex-col space-y-2">
+                <p className="text-sm md:text-base font-medium text-gray-900">Admin Notification</p>
+                <p className="text-xs md:text-sm text-gray-600">
                   Tests the email sent to admin when a new quote is created
-                </Text>
-                <Button
+                </p>
+                <button
                   onClick={() => testEmail('admin')}
                   disabled={loading !== null}
-                  size="2"
-                  variant="outline"
+                  className="inline-flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                  <EnvelopeClosedIcon />
-                  {loading === 'admin' ? 'Sending...' : 'Test Admin Email'}
-                </Button>
-              </Flex>
+                  <Mail className="h-4 w-4" />
+                  <span>{loading === 'admin' ? 'Sending...' : 'Test Admin Email'}</span>
+                </button>
+              </div>
 
-              <Flex direction="column" gap="2">
-                <Text size="3" weight="medium">Customer Quote Email</Text>
-                <Text size="2" color="gray">
+              <div className="flex flex-col space-y-2">
+                <p className="text-sm md:text-base font-medium text-gray-900">Customer Quote Email</p>
+                <p className="text-xs md:text-sm text-gray-600">
                   Tests the email sent to customers when quote status changes to QUOTED
-                </Text>
-                <Button
+                </p>
+                <button
                   onClick={() => testEmail('quote')}
                   disabled={loading !== null}
-                  size="2"
-                  variant="outline"
+                  className="inline-flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                  <EnvelopeClosedIcon />
-                  {loading === 'quote' ? 'Sending...' : 'Test Quote Email'}
-                </Button>
-              </Flex>
-            </Flex>
+                  <Mail className="h-4 w-4" />
+                  <span>{loading === 'quote' ? 'Sending...' : 'Test Quote Email'}</span>
+                </button>
+              </div>
+            </div>
 
             {result && (
-              <Callout.Root color={result.type === 'success' ? 'green' : 'red'} size="2">
-                <Callout.Icon>
-                  {result.type === 'success' ? <CheckIcon /> : <ExclamationTriangleIcon />}
-                </Callout.Icon>
-                <Callout.Text>{result.message}</Callout.Text>
-              </Callout.Root>
+              <div className={`flex items-start space-x-2 p-3 rounded-lg border ${
+                result.type === 'success' 
+                  ? 'bg-green-50 border-green-200' 
+                  : 'bg-red-50 border-red-200'
+              }`}>
+                {result.type === 'success' ? (
+                  <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                ) : (
+                  <AlertTriangle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
+                )}
+                <p className={`text-sm ${
+                  result.type === 'success' ? 'text-green-700' : 'text-red-700'
+                }`}>
+                  {result.message}
+                </p>
+              </div>
             )}
-          </Flex>
-        </Card>
+          </div>
+        </div>
 
-        <Card size="3">
-          <Flex direction="column" gap="3">
-            <Heading size="4" weight="medium">Setup Instructions</Heading>
-            <Text size="2" color="gray">
+        <div className="bg-white rounded-lg shadow p-4 md:p-6">
+          <div className="space-y-3">
+            <h2 className="text-base md:text-lg font-medium text-gray-900">Setup Instructions</h2>
+            <p className="text-xs md:text-sm text-gray-600">
               To enable email notifications:
-            </Text>
-                         <Box style={{ backgroundColor: 'var(--gray-3)', padding: '12px', borderRadius: '8px' }}>
-               <Text size="1" style={{ fontFamily: 'monospace' }}>
-                 RESEND_API_KEY=&quot;re_your_api_key_here&quot;
-               </Text>
-             </Box>
-            <Text size="2" color="gray">
+            </p>
+            <div className="bg-gray-100 p-3 rounded-lg">
+              <code className="text-xs font-mono text-gray-800">
+                RESEND_API_KEY=&quot;re_your_api_key_here&quot;
+              </code>
+            </div>
+            <p className="text-xs md:text-sm text-gray-600">
               Add this to your .env or .env.local file. Get your API key from{' '}
-              <Text as="span" weight="medium" color="blue">
+              <a href="https://resend.com" target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:text-blue-500">
                 resend.com
-              </Text>
-            </Text>
-          </Flex>
-        </Card>
-      </Flex>
-    </Box>
+              </a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 } 

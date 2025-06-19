@@ -6,10 +6,10 @@ export async function POST(req: Request) {
     const { type } = await req.json();
     
     const testQuote = {
-      id: 'test-quote-123',
+      id: 'test-quote-123456789',
       installationAddress: '123 Test Street, Test City, TX 12345',
       urgency: 'URGENT',
-      customerNotes: 'This is a test quote for email functionality',
+      customerNotes: 'This is a test quote for email functionality. Customer requested installation next week.',
       estimatedHeight: 36,
       estimatedLength: 20,
       installationFee: 150,

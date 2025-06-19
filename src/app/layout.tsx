@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { Theme } from "@radix-ui/themes";
-import "@radix-ui/themes/styles.css";
+import Script from "next/script";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -18,10 +17,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <Script
+        src={`https://maps.googleapis.com/maps/api/js?key=${process.env.GOOGLE_MAPS_API_KEY}&libraries=places`}
+        strategy="beforeInteractive"
+      />
       <body className={inter.className}>
-        <Theme accentColor="blue" panelBackground="solid">
-          {children}
-        </Theme>
+        {children}
       </body>
     </html>
   );
